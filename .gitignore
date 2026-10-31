@@ -1,0 +1,38 @@
+# python
+__pycache__/
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+nltk_data/
+target/
+
+# java
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+.mvn/timing.properties
+
+# outputs
+output/*
+indexLucene/
+indexAPata/
+
+# otros
+*.log
+logs/
+*.tmp
+*.temp
+*.swp
+*~
+.ignore
+.tmp/
+spec.md
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini
