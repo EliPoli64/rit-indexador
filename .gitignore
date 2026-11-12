@@ -34,7 +34,8 @@ logs/
 *~
 .ignore
 .tmp/
-spec.md
+*.md
+!README.md
 .vscode/
 .DS_Store
 Thumbs.db
