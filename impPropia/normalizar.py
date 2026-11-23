@@ -438,16 +438,47 @@ def normalizarTexto(texto: str, opciones: dict = None, idioma: str = None) -> li
     return resultado
 
 
-def normalizarDocumentoInfo(rutaArchivo: str, opciones: dict = None):
+def leerDocumento(rutaArchivo: str):
+    """Separa la cabecera del crawler (url/titulo/fecha) del cuerpo.
+
+    Devuelve ``(metadatos, cuerpo)``. La cabecera termina en la primera
+    línea en blanco (o en la primera línea que no sea ``clave: valor``).
+    """
+    metadatos = {'url': '', 'titulo': '', 'fecha': ''}
     with open(rutaArchivo, 'r', encoding='utf-8', errors='ignore') as archivo:
-        texto = archivo.read()
+        for _ in range(10):
+            posicion = archivo.tell()
+            linea = archivo.readline()
+            if not linea or not linea.strip():
+                break
+            if ':' not in linea:
+                archivo.seek(posicion)
+                break
+            clave, valor = linea.split(':', 1)
+            clave = quitarAcentos(clave.strip().lower())
+            if clave not in metadatos:
+                archivo.seek(posicion)
+                break
+            metadatos[clave] = valor.strip()
+        cuerpo = archivo.read()
+    return metadatos, cuerpo
+
+
+def normalizarDocumentoConMetadatos(rutaArchivo: str, opciones: dict = None):
+    """Normaliza solo el cuerpo y devuelve ``(tokens, idioma, metadatos)``."""
+    metadatos, texto = leerDocumento(rutaArchivo)
     if opciones is None:
         opciones = opcionesDefault
     if opciones.get('idioma', 'auto') == 'auto':
         idioma = detectarIdioma(texto)
     else:
         idioma = opciones['idioma']
-    return normalizarTexto(texto, opciones, idioma), idioma
+    return normalizarTexto(texto, opciones, idioma), idioma, metadatos
+
+
+def normalizarDocumentoInfo(rutaArchivo: str, opciones: dict = None):
+    tokens, idioma, _ = normalizarDocumentoConMetadatos(rutaArchivo, opciones)
+    return tokens, idioma
 
 
 def normalizarDocumento(rutaArchivo: str, opciones: dict = None) -> list:
